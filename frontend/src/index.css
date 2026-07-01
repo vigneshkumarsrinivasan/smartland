@@ -1,0 +1,104 @@
+@import "tailwindcss";
+
+@layer base {
+  :root {
+    --background: 222 47% 6%;
+    --foreground: 210 40% 96%;
+    --card: 222 47% 8%;
+    --card-foreground: 210 40% 96%;
+    --popover: 222 47% 8%;
+    --popover-foreground: 210 40% 96%;
+    --primary: 190 100% 42%;
+    --primary-foreground: 222 47% 6%;
+    --secondary: 217 33% 17%;
+    --secondary-foreground: 210 40% 96%;
+    --muted: 217 33% 14%;
+    --muted-foreground: 215 20% 55%;
+    --accent: 217 33% 17%;
+    --accent-foreground: 210 40% 96%;
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 210 40% 98%;
+    --border: 217 33% 18%;
+    --input: 217 33% 18%;
+    --ring: 190 100% 42%;
+    --radius: 0.5rem;
+    --sidebar-width: 220px;
+  }
+}
+
+@layer base {
+  * {
+    border-color: hsl(var(--border));
+  }
+  body {
+    background-color: hsl(var(--background));
+    color: hsl(var(--foreground));
+    font-family: 'Inter', system-ui, sans-serif;
+  }
+}
+
+/* Leaflet map overrides */
+.leaflet-container {
+  background: #0a0f1a;
+}
+
+/* Popup wrapper */
+.landsignal-popup .leaflet-popup-content-wrapper {
+  background: #0f172a;
+  color: #f1f5f9;
+  border: 1px solid #1e293b;
+  border-radius: 10px;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.6);
+  padding: 0;
+}
+.landsignal-popup .leaflet-popup-content {
+  margin: 14px 16px;
+}
+.landsignal-popup .leaflet-popup-tip-container {
+  display: none;
+}
+.landsignal-popup .leaflet-popup-close-button {
+  color: #475569 !important;
+  font-size: 18px !important;
+  top: 6px !important;
+  right: 8px !important;
+}
+.landsignal-popup .leaflet-popup-close-button:hover {
+  color: #94a3b8 !important;
+}
+
+/* Default leaflet popups (for non-landsignal) */
+.leaflet-popup-content-wrapper {
+  background: #0f172a;
+  color: #f1f5f9;
+  border: 1px solid #1e293b;
+  border-radius: 8px;
+}
+.leaflet-popup-tip {
+  background: #0f172a;
+}
+
+/* Zoom controls */
+.leaflet-control-zoom a {
+  background: #0f172a !important;
+  color: #94a3b8 !important;
+  border-color: #1e293b !important;
+}
+.leaflet-control-zoom a:hover {
+  background: #1e293b !important;
+  color: #f1f5f9 !important;
+}
+.leaflet-bar {
+  border: 1px solid #1e293b !important;
+  box-shadow: none !important;
+}
+
+/* Attribution */
+.leaflet-control-attribution {
+  background: rgba(10,15,26,0.7) !important;
+  color: #334155 !important;
+  font-size: 9px !important;
+}
+.leaflet-control-attribution a {
+  color: #475569 !important;
+}
