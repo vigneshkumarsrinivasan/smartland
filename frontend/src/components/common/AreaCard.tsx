@@ -112,6 +112,7 @@ export function AreaCard({ area, rank, topDriver, opportunityScore }: Props) {
       <div className="flex items-center gap-2 mt-auto border-t border-slate-800 pt-2.5">
         <button
           onClick={() => toggle(area.id)}
+          aria-label={watched ? `Remove ${area.name} from watchlist` : `Add ${area.name} to watchlist`}
           className={cn(
             'flex items-center gap-1.5 text-[11px] px-2.5 py-1.5 rounded-md border transition-colors',
             watched
@@ -119,14 +120,15 @@ export function AreaCard({ area, rank, topDriver, opportunityScore }: Props) {
               : 'text-slate-500 border-slate-700 hover:text-slate-300 hover:border-slate-600'
           )}
         >
-          {watched ? <BookmarkCheck className="w-3 h-3" /> : <Bookmark className="w-3 h-3" />}
+          {watched ? <BookmarkCheck className="w-3 h-3" aria-hidden="true" /> : <Bookmark className="w-3 h-3" aria-hidden="true" />}
           {watched ? 'Watching' : 'Watch'}
         </button>
         <button
           onClick={() => navigate(`/analyzer?area=${area.id}`)}
+          aria-label={`Analyze ${area.name}`}
           className="flex items-center gap-1.5 text-[11px] px-2.5 py-1.5 rounded-md border border-slate-700 text-slate-400 hover:text-slate-200 hover:border-slate-500 transition-colors ml-auto"
         >
-          Analyze <ArrowRight className="w-3 h-3" />
+          Analyze <ArrowRight className="w-3 h-3" aria-hidden="true" />
         </button>
       </div>
     </div>

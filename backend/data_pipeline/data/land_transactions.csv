@@ -1,0 +1,121 @@
+area_name,date,price_sqft,transaction_count,source
+Sarjapur,2022-01-01,4800,142,RERA Karnataka
+Sarjapur,2022-04-01,4920,155,RERA Karnataka
+Sarjapur,2022-07-01,5050,163,RERA Karnataka
+Sarjapur,2022-10-01,5150,171,RERA Karnataka
+Sarjapur,2023-01-01,5280,188,RERA Karnataka
+Sarjapur,2023-04-01,5420,195,RERA Karnataka
+Sarjapur,2023-07-01,5550,204,RERA Karnataka
+Sarjapur,2023-10-01,5680,212,RERA Karnataka
+Sarjapur,2024-01-01,5820,228,RERA Karnataka
+Sarjapur,2024-04-01,5960,235,RERA Karnataka
+Sarjapur,2024-07-01,6100,244,RERA Karnataka
+Sarjapur,2024-10-01,6250,252,RERA Karnataka
+Devanahalli,2022-01-01,2600,78,RERA Karnataka
+Devanahalli,2022-04-01,2700,85,RERA Karnataka
+Devanahalli,2022-07-01,2820,92,RERA Karnataka
+Devanahalli,2022-10-01,2950,98,RERA Karnataka
+Devanahalli,2023-01-01,3050,108,RERA Karnataka
+Devanahalli,2023-04-01,3160,115,RERA Karnataka
+Devanahalli,2023-07-01,3280,124,RERA Karnataka
+Devanahalli,2023-10-01,3400,131,RERA Karnataka
+Devanahalli,2024-01-01,3540,145,RERA Karnataka
+Devanahalli,2024-04-01,3680,152,RERA Karnataka
+Devanahalli,2024-07-01,3820,162,RERA Karnataka
+Devanahalli,2024-10-01,3960,170,RERA Karnataka
+Electronic City,2022-01-01,4200,112,RERA Karnataka
+Electronic City,2022-04-01,4290,118,RERA Karnataka
+Electronic City,2022-07-01,4380,125,RERA Karnataka
+Electronic City,2022-10-01,4450,129,RERA Karnataka
+Electronic City,2023-01-01,4520,135,RERA Karnataka
+Electronic City,2023-04-01,4600,140,RERA Karnataka
+Electronic City,2023-07-01,4680,145,RERA Karnataka
+Electronic City,2023-10-01,4760,150,RERA Karnataka
+Electronic City,2024-01-01,4850,158,RERA Karnataka
+Electronic City,2024-04-01,4950,162,RERA Karnataka
+Electronic City,2024-07-01,5060,170,RERA Karnataka
+Electronic City,2024-10-01,5180,175,RERA Karnataka
+Whitefield,2022-01-01,6000,185,RERA Karnataka
+Whitefield,2022-04-01,6150,192,RERA Karnataka
+Whitefield,2022-07-01,6320,198,RERA Karnataka
+Whitefield,2022-10-01,6480,205,RERA Karnataka
+Whitefield,2023-01-01,6640,215,RERA Karnataka
+Whitefield,2023-04-01,6800,222,RERA Karnataka
+Whitefield,2023-07-01,6960,228,RERA Karnataka
+Whitefield,2023-10-01,7130,235,RERA Karnataka
+Whitefield,2024-01-01,7310,245,RERA Karnataka
+Whitefield,2024-04-01,7490,252,RERA Karnataka
+Whitefield,2024-07-01,7700,260,RERA Karnataka
+Whitefield,2024-10-01,7900,268,RERA Karnataka
+Hoskote,2022-01-01,1600,45,RERA Karnataka
+Hoskote,2022-04-01,1660,48,RERA Karnataka
+Hoskote,2022-07-01,1730,52,RERA Karnataka
+Hoskote,2022-10-01,1800,55,RERA Karnataka
+Hoskote,2023-01-01,1870,60,RERA Karnataka
+Hoskote,2023-04-01,1960,65,RERA Karnataka
+Hoskote,2023-07-01,2040,68,RERA Karnataka
+Hoskote,2023-10-01,2120,72,RERA Karnataka
+Hoskote,2024-01-01,2200,78,RERA Karnataka
+Hoskote,2024-04-01,2300,82,RERA Karnataka
+Hoskote,2024-07-01,2400,88,RERA Karnataka
+Hoskote,2024-10-01,2480,92,RERA Karnataka
+Shamshabad,2022-01-01,2800,95,RERA Telangana
+Shamshabad,2022-04-01,2920,102,RERA Telangana
+Shamshabad,2022-07-01,3050,110,RERA Telangana
+Shamshabad,2022-10-01,3180,118,RERA Telangana
+Shamshabad,2023-01-01,3310,128,RERA Telangana
+Shamshabad,2023-04-01,3460,136,RERA Telangana
+Shamshabad,2023-07-01,3600,145,RERA Telangana
+Shamshabad,2023-10-01,3740,152,RERA Telangana
+Shamshabad,2024-01-01,3880,165,RERA Telangana
+Shamshabad,2024-04-01,4040,172,RERA Telangana
+Shamshabad,2024-07-01,4200,182,RERA Telangana
+Shamshabad,2024-10-01,4360,190,RERA Telangana
+Hinjewadi,2022-01-01,5200,138,MahaRERA
+Hinjewadi,2022-04-01,5340,145,MahaRERA
+Hinjewadi,2022-07-01,5490,152,MahaRERA
+Hinjewadi,2022-10-01,5640,158,MahaRERA
+Hinjewadi,2023-01-01,5800,168,MahaRERA
+Hinjewadi,2023-04-01,5960,175,MahaRERA
+Hinjewadi,2023-07-01,6130,182,MahaRERA
+Hinjewadi,2023-10-01,6300,188,MahaRERA
+Hinjewadi,2024-01-01,6480,198,MahaRERA
+Hinjewadi,2024-04-01,6680,205,MahaRERA
+Hinjewadi,2024-07-01,6900,215,MahaRERA
+Hinjewadi,2024-10-01,7060,222,MahaRERA
+Sriperumbudur,2022-01-01,1800,62,RERA Tamil Nadu
+Sriperumbudur,2022-04-01,1860,65,RERA Tamil Nadu
+Sriperumbudur,2022-07-01,1930,68,RERA Tamil Nadu
+Sriperumbudur,2022-10-01,2000,72,RERA Tamil Nadu
+Sriperumbudur,2023-01-01,2060,76,RERA Tamil Nadu
+Sriperumbudur,2023-04-01,2130,80,RERA Tamil Nadu
+Sriperumbudur,2023-07-01,2200,84,RERA Tamil Nadu
+Sriperumbudur,2023-10-01,2270,88,RERA Tamil Nadu
+Sriperumbudur,2024-01-01,2340,92,RERA Tamil Nadu
+Sriperumbudur,2024-04-01,2420,96,RERA Tamil Nadu
+Sriperumbudur,2024-07-01,2500,100,RERA Tamil Nadu
+Sriperumbudur,2024-10-01,2560,105,RERA Tamil Nadu
+Oragadam,2022-01-01,2100,72,RERA Tamil Nadu
+Oragadam,2022-04-01,2200,78,RERA Tamil Nadu
+Oragadam,2022-07-01,2310,84,RERA Tamil Nadu
+Oragadam,2022-10-01,2430,90,RERA Tamil Nadu
+Oragadam,2023-01-01,2540,98,RERA Tamil Nadu
+Oragadam,2023-04-01,2660,105,RERA Tamil Nadu
+Oragadam,2023-07-01,2780,112,RERA Tamil Nadu
+Oragadam,2023-10-01,2910,118,RERA Tamil Nadu
+Oragadam,2024-01-01,3030,128,RERA Tamil Nadu
+Oragadam,2024-04-01,3160,135,RERA Tamil Nadu
+Oragadam,2024-07-01,3280,142,RERA Tamil Nadu
+Oragadam,2024-10-01,3360,148,RERA Tamil Nadu
+Coimbatore North,2022-01-01,2400,55,RERA Tamil Nadu
+Coimbatore North,2022-04-01,2470,58,RERA Tamil Nadu
+Coimbatore North,2022-07-01,2540,62,RERA Tamil Nadu
+Coimbatore North,2022-10-01,2620,65,RERA Tamil Nadu
+Coimbatore North,2023-01-01,2700,70,RERA Tamil Nadu
+Coimbatore North,2023-04-01,2770,74,RERA Tamil Nadu
+Coimbatore North,2023-07-01,2840,78,RERA Tamil Nadu
+Coimbatore North,2023-10-01,2920,82,RERA Tamil Nadu
+Coimbatore North,2024-01-01,3000,88,RERA Tamil Nadu
+Coimbatore North,2024-04-01,3060,92,RERA Tamil Nadu
+Coimbatore North,2024-07-01,3130,96,RERA Tamil Nadu
+Coimbatore North,2024-10-01,3180,100,RERA Tamil Nadu

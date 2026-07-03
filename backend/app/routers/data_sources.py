@@ -18,6 +18,8 @@ def list_data_sources(db: Session = Depends(get_db)):
             "status": s.status,
             "coverage": s.coverage,
             "last_updated": s.last_updated.isoformat() if s.last_updated else None,
+            "last_run_at": s.last_run_at.isoformat() if s.last_run_at else None,
+            "freshness_hours": s.freshness_hours,
         }
         for s in sources
     ]

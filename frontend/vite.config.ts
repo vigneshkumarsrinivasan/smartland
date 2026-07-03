@@ -19,4 +19,17 @@ export default defineConfig({
       },
     },
   },
+  build: {
+    rollupOptions: {
+      output: {
+        manualChunks: (id: string) => {
+          if (id.includes('/react-dom/') || id.includes('/react/') || id.includes('/react-router')) return 'vendor-react'
+          if (id.includes('/recharts/')) return 'vendor-charts'
+          if (id.includes('/leaflet/') || id.includes('/react-leaflet/')) return 'vendor-map'
+          if (id.includes('/@radix-ui/') || id.includes('/lucide-react/') || id.includes('/class-variance-authority/')) return 'vendor-ui'
+        },
+      },
+    },
+    chunkSizeWarningLimit: 600,
+  },
 })

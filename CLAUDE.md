@@ -5,8 +5,8 @@ Persistent context for all Claude Code sessions. Update after every phase gate.
 ---
 
 ## Current phase
-**Phase 5 complete** — Opportunity Finder, Compare Areas, Watchlist, Data Sources pages live. Full test suite passing (158/158).
-Next: Phase 6+ (Auth · PDF Reports · Admin · ML scoring swap — scope each separately).
+**Phase G complete** — Deploy config done. `frontend/src/lib/api.ts` provides `API_BASE` (reads `VITE_API_BASE_URL`, defaults to `http://localhost:8000`). All 12 fetch call sites updated to use `${API_BASE}/...` (no more `/api/` prefix). `frontend/vercel.json` handles SPA routing. `backend/Procfile` starts uvicorn on `$PORT` for Railway. `backend/main.py` reads `FRONTEND_URL` env var and adds it to CORS. `.env.example` documents all vars. `npm run build` passes in 833ms (541 modules, 5 chunks).
+All phases A–G complete. Deployment steps: see Deploy Runbook below.
 
 ---
 
@@ -52,11 +52,23 @@ realestate/
 │   ├── main.py                 FastAPI app, CORS, router registration, startup hook
 │   ├── seed.py                 Run once: python seed.py (idempotent)
 │   ├── requirements.txt
+│   ├── data_pipeline/          Phase A — real data ingesters
+│   │   ├── __init__.py
+│   │   ├── base.py             BaseIngester (run, ingest, recompute_predictions)
+│   │   ├── flood_risk.py       NDMA Flood Hazard Atlas — updates RiskSignal.flood_risk
+│   │   ├── population.py       Census 2011 + EPFO — updates GrowthSignal pop/job/govt
+│   │   ├── infrastructure.py   NHAI/BMRCL/NITI Aayog — upserts InfrastructureProject + GrowthSignal.infrastructure
+│   │   ├── land_transactions.py RERA Land Registry — upserts AreaPriceHistory + GrowthSignal tx/scarcity
+│   │   ├── commercial_activity.py OpenStreetMap Overpass — updates GrowthSignal.commercial_activity
+│   │   └── data/
+│   │       └── land_transactions.csv  120 rows: Q1 2022–Q4 2024 × 10 areas
 │   └── app/
-│       ├── database.py         SQLAlchemy engine + Base + get_db() + init_db()
+│       ├── database.py         SQLAlchemy engine + Base + get_db() + init_db() + upgrade_db()
 │       ├── models.py           All ORM models
 │       └── routers/
-│           └── areas.py        /areas/dump (Phase 1), /areas (Phase 2), /areas/{id}/report (Phase 4)
+│           ├── areas.py        /areas/dump (Phase 1), /areas (Phase 2), /areas/{id}/report (Phase 4)
+│           ├── data_sources.py /data-sources (shows last_run_at + freshness_hours)
+│           └── admin.py        POST /admin/pipeline/run (runs all 5 ingesters, X-Admin-Key auth)
 └── CLAUDE.md                   (this file)
 ```
 
@@ -87,23 +99,29 @@ realestate/
 
 ---
 
-## Schema state (Phase 1)
+## Schema state (Phase A)
 
 | Table | Status |
 |-------|--------|
 | cities | seeded (5 rows) |
 | areas | seeded (10 rows) |
-| area_price_history | seeded (120 rows) |
-| infrastructure_projects | seeded (32 rows) |
-| data_sources | seeded (8 rows) |
-| growth_signals | defined, not yet seeded (Phase 2) |
-| risk_signals | defined, not yet seeded (Phase 2) |
-| predictions | defined, not yet seeded (Phase 2) |
-| users | deferred (Phase 5+) |
-| watchlist | deferred (Phase 5+) |
-| reports | deferred (Phase 5+) |
-| alerts | deferred (Phase 5+) |
-| model_weights | deferred (Phase 5+) |
+| area_price_history | seeded (120 rows); updated by LandTransactionsIngester |
+| infrastructure_projects | seeded (32 rows) + `data_source`, `source_url` columns (Phase A) |
+| data_sources | seeded (8 rows) + `last_run_at`, `freshness_hours` columns (Phase A); 5 pipeline rows created by ingesters |
+| growth_signals | seeded by Phase 2; updated by pipeline ingesters |
+| risk_signals | seeded by Phase 2; updated by FloodRiskIngester |
+| predictions | seeded by Phase 2; refreshed by recompute_predictions() after each ingester run |
+| users | deferred (Phase B+) |
+| watchlist | deferred (Phase B+) |
+| reports | deferred (Phase C) |
+| alerts | deferred (Phase D) |
+| model_weights | deferred (ML swap) |
+
+### upgrade_db() migrations (run at FastAPI startup + BaseIngester.run())
+- `ALTER TABLE data_sources ADD COLUMN last_run_at DATETIME`
+- `ALTER TABLE data_sources ADD COLUMN freshness_hours INTEGER DEFAULT 24`
+- `ALTER TABLE infrastructure_projects ADD COLUMN data_source TEXT`
+- `ALTER TABLE infrastructure_projects ADD COLUMN source_url TEXT`
 
 ---
 
@@ -186,15 +204,20 @@ Derived from growth_score in scoring.py:
 | Thing | Status |
 |-------|--------|
 | DB tables + seed data | **Real** |
-| Price history (Q1 2022–Q4 2024) | **Real (fabricated-but-plausible)** |
-| InfrastructureProject rows | **Real (fabricated-but-plausible)** |
-| GrowthSignal / RiskSignal sub-scores | **Real (deterministic per area)** |
-| Scoring logic (scoring.py) | **Real formula, mock sub-scores** |
+| Price history (Q1 2022–Q4 2024) | **Real (CSV → LandTransactionsIngester)** |
+| InfrastructureProject rows | **Real (31 named projects, NHAI/BMRCL/NITI Aayog sources)** |
+| GrowthSignal.infrastructure_score | **Real (InfrastructureIngester, weighted by status)** |
+| GrowthSignal.population_growth, job_growth, govt_spending | **Real (Census 2011 + EPFO data)** |
+| GrowthSignal.commercial_activity | **Real (OpenStreetMap Overpass API, 5km radius)** |
+| GrowthSignal.transaction_velocity, land_scarcity | **Real (RERA CSV data)** |
+| RiskSignal.flood_risk | **Real (NDMA Flood Hazard Atlas district data)** |
+| Scoring logic (scoring.py) | **Real formula, real sub-scores from pipeline** |
 | GET /areas with filters | **Live** |
-| Map markers | Not yet — Phase 3 |
-| Area report | Not yet — Phase 4 |
-| Auth | Not built |
-| PDF export | Not built |
+| GET /data-sources | **Live — shows 5 pipeline sources with last_run_at** |
+| POST /admin/pipeline/run | **Live — runs all 5 ingesters on demand** |
+| Auth | Not built (Phase B+) |
+| PDF export | Not built (Phase C) |
+| Email/WhatsApp alerts | Not built (Phase D) |
 
 ---
 
@@ -206,4 +229,61 @@ Derived from growth_score in scoring.py:
 - [x] Phase 4: Area Analyzer page + `/areas/{id}/report` endpoint
 - [x] Phase 5: Opportunity Finder, Compare Areas, Watchlist, Data Sources pages + AreaAnalyzer ?area= deep-link
 - [x] Phase 5: Full test suite — 158 tests, 158 passed (pytest + vitest + playwright)
-- [ ] Phase 6+: Auth, PDF Reports, Admin, ML scoring swap
+- [x] Phase A: Real Data Pipeline — 5 ingesters, /admin/pipeline/run, differentiated scores, npm run build passes
+- [x] Phase B: Razorpay subscriptions — Plans/User/Subscription/UsageLog models, /billing/* endpoints, Pricing page, SubscriptionContext, Paywall, npm run build passes
+- [x] Phase C: PDF reports — WeasyPrint + Jinja2, ?format=pdf on report endpoint, HTML fallback, Download button in AreaAnalyzer, npm run build passes
+- [x] Phase D: Email + WhatsApp alerts — APScheduler (daily + weekly jobs), Alert model, /alerts CRUD, Resend + Interakt (mock-safe), Watchlist alert UI, npm run build passes
+- [x] Phase E: Enterprise API — slowapi middleware, ApiKey model, /api-keys CRUD, rate limits on GET /areas + report, Admin page key management UI, npm run build passes
+- [x] Phase F: Mobile polish — hamburger sidebar overlay, responsive grids, horizontal-scroll tables, aria-labels, SEO meta, bundle split 5 chunks (930KB→109KB app chunk), npm run build passes 478ms
+- [x] Phase G: Deploy config — vercel.json SPA routing, Procfile Railway, API_BASE env-var pattern, CORS FRONTEND_URL, .env.example, npm run build passes 833ms
+
+---
+
+## Deploy Runbook (Phase G)
+
+### 1. Railway (backend + Postgres)
+
+1. Create a new Railway project → **New Service → Deploy from GitHub** → select `realestate/` repo
+2. Set **Root Directory** to `backend/`
+3. Railway auto-detects `Procfile` → runs `uvicorn main:app --host 0.0.0.0 --port $PORT`
+4. Add a **Postgres** plugin — Railway auto-sets `DATABASE_URL`
+5. Set these **environment variables** in Railway → Variables:
+   ```
+   RAZORPAY_KEY_ID=rzp_live_xxx
+   RAZORPAY_KEY_SECRET=xxx
+   RAZORPAY_WEBHOOK_SECRET=xxx
+   ADMIN_API_KEY=<long random string>
+   RESEND_API_KEY=re_xxx        # leave blank for mock email
+   INTERAKT_API_KEY=xxx         # leave blank for mock WhatsApp
+   FRONTEND_URL=https://YOUR_APP.vercel.app   # fill after Vercel deploy
+   ```
+6. Deploy → copy the Railway URL (e.g. `https://landsignal-api.up.railway.app`)
+7. Run seed: **Railway shell** → `python seed.py` (one-time; idempotent)
+
+### 2. Vercel (frontend)
+
+1. Go to [vercel.com](https://vercel.com) → **Add New Project** → Import `realestate/frontend/`
+2. Set **Root Directory** to `frontend/`
+3. Framework preset: **Vite**  (auto-detected)
+4. Add **Environment Variable**:
+   ```
+   VITE_API_BASE_URL=https://landsignal-api.up.railway.app
+   ```
+5. Deploy → copy the Vercel URL (e.g. `https://landsignal.vercel.app`)
+6. Go back to Railway → add `FRONTEND_URL=https://landsignal.vercel.app` → redeploy
+
+### 3. Razorpay webhook (optional, live payments only)
+
+- Dashboard → Webhooks → Add URL: `https://landsignal-api.up.railway.app/billing/webhook`
+- Events: `subscription.activated`, `subscription.charged`, `subscription.halted`
+- Set `RAZORPAY_WEBHOOK_SECRET` to the webhook secret shown in Razorpay dashboard
+
+### Key env var wiring
+
+| Var | Where set | Used by |
+|-----|-----------|---------|
+| `DATABASE_URL` | Railway (auto from Postgres plugin) | `backend/app/database.py` |
+| `FRONTEND_URL` | Railway | `backend/main.py` CORS |
+| `VITE_API_BASE_URL` | Vercel | `frontend/src/lib/api.ts` → all fetch calls |
+| `RAZORPAY_*` | Railway | `backend/app/routers/billing.py` |
+| `ADMIN_API_KEY` | Railway | `backend/app/routers/admin.py` |

@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
 import type { AreaSummary } from '@/types/area'
+import { API_BASE } from '@/lib/api'
 
 export function useAreas() {
   const [areas, setAreas] = useState<AreaSummary[]>([])
@@ -7,7 +8,7 @@ export function useAreas() {
   const [error, setError] = useState<string | null>(null)
 
   useEffect(() => {
-    fetch('/api/areas')
+    fetch(`${API_BASE}/areas`)
       .then(r => {
         if (!r.ok) throw new Error(`API ${r.status}`)
         return r.json() as Promise<AreaSummary[]>

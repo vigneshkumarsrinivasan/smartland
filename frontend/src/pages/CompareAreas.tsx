@@ -64,7 +64,7 @@ export default function CompareAreas() {
   return (
     <div className="flex flex-col h-full overflow-hidden">
       {/* Picker bar */}
-      <div className="shrink-0 px-5 py-3 border-b border-slate-800 bg-slate-950 flex items-center gap-3 flex-wrap">
+      <div className="shrink-0 px-4 md:px-5 py-3 border-b border-slate-800 bg-slate-950 flex items-center gap-2 flex-wrap">
         <span className="text-[11px] text-slate-500 shrink-0">Add area (up to 5):</span>
         <select
           className="bg-slate-900 border border-slate-700 rounded-md px-2 py-1 text-[11px] text-slate-300 focus:outline-none"
@@ -85,8 +85,8 @@ export default function CompareAreas() {
             style={{ borderColor: COLORS[i] + '60', color: COLORS[i], backgroundColor: COLORS[i] + '15' }}
           >
             {a.name}
-            <button onClick={() => removeArea(a.id)} className="hover:opacity-60 transition-opacity">
-              <X className="w-3 h-3" />
+            <button onClick={() => removeArea(a.id)} aria-label={`Remove ${a.name}`} className="hover:opacity-60 transition-opacity">
+              <X className="w-3 h-3" aria-hidden="true" />
             </button>
           </span>
         ))}
@@ -143,8 +143,8 @@ export default function CompareAreas() {
           {/* Metrics table */}
           <section>
             <h3 className="text-[10px] font-semibold text-slate-500 tracking-widest mb-3">SIDE-BY-SIDE METRICS</h3>
-            <div className="bg-slate-900 border border-slate-800 rounded-xl overflow-hidden">
-              <table className="w-full text-[11px]">
+            <div className="bg-slate-900 border border-slate-800 rounded-xl overflow-hidden overflow-x-auto">
+              <table className="w-full min-w-[400px] text-[11px]">
                 <thead>
                   <tr className="border-b border-slate-800">
                     <th className="text-left px-4 py-2.5 text-slate-600 font-semibold tracking-widest text-[9px]">METRIC</th>

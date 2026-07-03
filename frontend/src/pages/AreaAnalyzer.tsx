@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 import { useSearchParams } from 'react-router-dom'
-import { Search, Loader2, AlertCircle, Sparkles } from 'lucide-react'
+import { Search, Loader2, AlertCircle, Sparkles, Download } from 'lucide-react'
 import { useAreas } from '@/hooks/useAreas'
 import { useAreaReport } from '@/hooks/useAreaReport'
 import { SummaryCard } from '@/components/analyzer/SummaryCard'
@@ -8,11 +8,15 @@ import { GrowthFactorBars } from '@/components/analyzer/GrowthFactorBars'
 import { RiskCards } from '@/components/analyzer/RiskCards'
 import { ForecastChart } from '@/components/analyzer/ForecastChart'
 import { InfraTimeline } from '@/components/analyzer/InfraTimeline'
+import { useReportsRemaining } from '@/context/SubscriptionContext'
+import { API_BASE } from '@/lib/api'
 
 export default function AreaAnalyzer() {
   const { areas } = useAreas()
   const [searchParams] = useSearchParams()
   const [selectedId, setSelectedId] = useState<number | null>(null)
+  const [pdfLoading, setPdfLoading] = useState(false)
+  const remaining = useReportsRemaining()
 
   // Pre-select area from ?area= query param (set by AreaCard "Analyze →" button)
   useEffect(() => {
@@ -21,11 +25,30 @@ export default function AreaAnalyzer() {
   }, [searchParams])
   const { report, loading, error } = useAreaReport(selectedId)
 
+  const handleDownloadPdf = async () => {
+    if (!selectedId) return
+    setPdfLoading(true)
+    try {
+      const res = await fetch(`${API_BASE}/areas/${selectedId}/report?format=pdf`)
+      const blob = await res.blob()
+      const url = URL.createObjectURL(blob)
+      const a = document.createElement('a')
+      a.href = url
+      const cd = res.headers.get('content-disposition') ?? ''
+      const match = cd.match(/filename="([^"]+)"/)
+      a.download = match?.[1] ?? `landsignal-report.${blob.type.includes('pdf') ? 'pdf' : 'html'}`
+      a.click()
+      URL.revokeObjectURL(url)
+    } finally {
+      setPdfLoading(false)
+    }
+  }
+
   return (
     <div className="flex flex-col h-full overflow-hidden">
       {/* Search bar */}
-      <div className="shrink-0 border-b border-slate-800 bg-slate-950 px-6 py-3">
-        <div className="flex items-center gap-3 max-w-lg">
+      <div className="shrink-0 border-b border-slate-800 bg-slate-950 px-4 md:px-6 py-3">
+        <div className="flex flex-wrap items-center gap-2 md:gap-3 max-w-2xl">
           <Search className="w-4 h-4 text-slate-500 shrink-0" />
           <select
             value={selectedId ?? ''}
@@ -39,6 +62,21 @@ export default function AreaAnalyzer() {
               </option>
             ))}
           </select>
+          {report && (
+            <button
+              onClick={handleDownloadPdf}
+              disabled={pdfLoading}
+              className="flex items-center gap-1.5 px-3 py-2 bg-slate-800 hover:bg-slate-700 disabled:opacity-50 border border-slate-700 rounded-lg text-sm text-slate-300 transition-colors shrink-0"
+            >
+              <Download className="w-4 h-4" />
+              {pdfLoading ? 'Generating…' : 'PDF'}
+            </button>
+          )}
+          {remaining !== null && (
+            <span className="text-xs text-slate-500 shrink-0">
+              {remaining} report{remaining !== 1 ? 's' : ''} left
+            </span>
+          )}
         </div>
       </div>
 
@@ -92,7 +130,7 @@ export default function AreaAnalyzer() {
             />
 
             {/* Growth factors + Risk cards side by side */}
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <GrowthFactorBars signals={report.growth_signals} />
               <RiskCards signals={report.risk_signals} />
             </div>

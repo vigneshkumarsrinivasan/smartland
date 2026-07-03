@@ -14,9 +14,12 @@ sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
 
 from sqlalchemy.pool import StaticPool
 from app.database import Base
+import json
+from datetime import datetime
 from app.models import (
     City, Area, AreaPriceHistory, InfrastructureProject,
     GrowthSignal, RiskSignal, Prediction, DataSource,
+    Plan, User, Subscription,
 )
 from app.scoring import AreaSignals, score_area
 
@@ -26,6 +29,15 @@ from app.scoring import AreaSignals, score_area
 # ---------------------------------------------------------------------------
 
 TEST_DB_URL = "sqlite:///:memory:"
+
+
+@pytest.fixture(scope="session", autouse=True)
+def disable_rate_limit_headers():
+    """Disable rate limit enforcement so the full test suite doesn't hit the 60/minute cap."""
+    from app.rate_limit import limiter
+    limiter.enabled = False
+    yield
+    limiter.enabled = True
 
 
 @pytest.fixture(scope="session")
@@ -48,8 +60,6 @@ def db_session(engine):
     db = Session()
 
     # Same seed data as seed.py (values must stay in sync with CLAUDE.md)
-    from datetime import datetime
-
     QUARTERS = [
         datetime(2022, 1, 1), datetime(2022, 4, 1), datetime(2022, 7, 1), datetime(2022, 10, 1),
         datetime(2023, 1, 1), datetime(2023, 4, 1), datetime(2023, 7, 1), datetime(2023, 10, 1),
@@ -291,8 +301,97 @@ def db_session(engine):
         db.add(DataSource(**ds))
 
     db.commit()
+
+    # --- Billing plans (idempotent) ---
+    from app.seed_plans import PLANS as PLAN_SPECS
+    for spec in PLAN_SPECS:
+        if not db.query(Plan).filter(Plan.slug == spec["slug"]).first():
+            db.add(Plan(
+                name=spec["name"],
+                slug=spec["slug"],
+                price_inr=spec["price_inr"],
+                billing_cycle=spec["billing_cycle"],
+                max_reports_per_month=spec["max_reports_per_month"],
+                features_json=json.dumps(spec["features"]),
+                is_active=True,
+            ))
+    db.commit()
+
     yield db
     db.close()
+
+
+@pytest.fixture(scope="session")
+def plans(db_session):
+    """Return slug→Plan map (all 3 plans)."""
+    return {p.slug: p for p in db_session.query(Plan).all()}
+
+
+@pytest.fixture(scope="session")
+def free_user(db_session, plans):
+    """Session-scoped free-tier user."""
+    user = User(
+        email="free_fixture@landsignal.test",
+        name="Free Test User",
+        auth_token=User.generate_token(),
+        plan_id=plans["free"].id,
+    )
+    db_session.add(user)
+    db_session.commit()
+    db_session.refresh(user)
+    return user
+
+
+@pytest.fixture(scope="session")
+def pro_user(db_session, plans):
+    """Session-scoped Pro user with active subscription."""
+    from datetime import timedelta
+    user = User(
+        email="pro_fixture@landsignal.test",
+        name="Pro Test User",
+        auth_token=User.generate_token(),
+        plan_id=plans["pro"].id,
+    )
+    db_session.add(user)
+    db_session.flush()
+    sub = Subscription(
+        user_id=user.id,
+        plan_id=plans["pro"].id,
+        razorpay_subscription_id="sub_mock_pro_fixture",
+        status="active",
+        current_period_start=datetime.utcnow(),
+        current_period_end=datetime.utcnow() + timedelta(days=30),
+    )
+    db_session.add(sub)
+    db_session.commit()
+    db_session.refresh(user)
+    return user
+
+
+@pytest.fixture(scope="session")
+def enterprise_user(db_session, plans):
+    """Session-scoped Enterprise user with active subscription."""
+    from datetime import timedelta
+    user = User(
+        email="enterprise_fixture@landsignal.test",
+        name="Enterprise Test User",
+        auth_token=User.generate_token(),
+        plan_id=plans["enterprise"].id,
+    )
+    db_session.add(user)
+    db_session.flush()
+    sub = Subscription(
+        user_id=user.id,
+        plan_id=plans["enterprise"].id,
+        razorpay_subscription_id="sub_mock_enterprise_fixture",
+        status="active",
+        current_period_start=datetime.utcnow(),
+        current_period_end=datetime.utcnow() + timedelta(days=30),
+    )
+    db_session.add(sub)
+    db_session.commit()
+    db_session.refresh(user)
+    return user
 
 
 @pytest.fixture(scope="session")

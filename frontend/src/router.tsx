@@ -8,6 +8,7 @@ import Watchlist from '@/pages/Watchlist'
 import Reports from '@/pages/Reports'
 import DataSources from '@/pages/DataSources'
 import Admin from '@/pages/Admin'
+import Pricing from '@/pages/Pricing'
 
 export const router = createBrowserRouter([
   {
@@ -23,6 +24,7 @@ export const router = createBrowserRouter([
       { path: 'reports', element: <Reports /> },
       { path: 'data-sources', element: <DataSources /> },
       { path: 'admin', element: <Admin /> },
+      { path: 'pricing', element: <Pricing /> },
     ],
   },
 ])

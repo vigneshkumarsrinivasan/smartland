@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react'
+import { API_BASE } from '@/lib/api'
 
 export interface DataSource {
   id: number
@@ -16,7 +17,7 @@ export function useDataSources() {
   const [error, setError] = useState<string | null>(null)
 
   useEffect(() => {
-    fetch('/api/data-sources')
+    fetch(`${API_BASE}/data-sources`)
       .then(r => { if (!r.ok) throw new Error(`API ${r.status}`); return r.json() as Promise<DataSource[]> })
       .then(d => { setSources(d); setLoading(false) })
       .catch(e => { setError(String(e.message)); setLoading(false) })

@@ -162,7 +162,7 @@ export default function OpportunityFinder() {
         </div>
 
         {/* Cards grid */}
-        <div className="p-5 grid grid-cols-2 xl:grid-cols-3 gap-4">
+        <div className="p-5 grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4">
           {filtered.map((area, i) => (
             <AreaCard
               key={area.id}

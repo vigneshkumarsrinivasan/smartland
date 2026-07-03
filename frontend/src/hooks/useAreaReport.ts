@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
 import type { AreaReport } from '@/types/report'
+import { API_BASE } from '@/lib/api'
 
 export function useAreaReport(areaId: number | null) {
   const [report, setReport] = useState<AreaReport | null>(null)
@@ -12,7 +13,7 @@ export function useAreaReport(areaId: number | null) {
     setLoading(true)
     setError(null)
 
-    fetch(`/api/areas/${areaId}/report`)
+    fetch(`${API_BASE}/areas/${areaId}/report`)
       .then(r => {
         if (!r.ok) throw new Error(`API ${r.status}`)
         return r.json() as Promise<AreaReport>

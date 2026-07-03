@@ -7,8 +7,10 @@ Phase 4: GET /areas/{id}/report — full explainable report
 from __future__ import annotations
 
 from typing import Optional
+from datetime import datetime
 
-from fastapi import APIRouter, Depends, HTTPException, Query
+from fastapi import APIRouter, Depends, HTTPException, Query, Request
+from fastapi.responses import Response
 from sqlalchemy.orm import Session
 
 from app.database import get_db
@@ -16,6 +18,7 @@ from app.models import (
     Area, AreaPriceHistory, Prediction,
     GrowthSignal, RiskSignal, InfrastructureProject,
 )
+from app.rate_limit import limiter
 
 router = APIRouter(prefix="/areas", tags=["areas"])
 
@@ -143,7 +146,9 @@ def dump_areas(db: Session = Depends(get_db)):
 
 
 @router.get("")
+@limiter.limit("60/minute")
 def list_areas(
+    request: Request,
     city: Optional[str] = Query(None),
     min_growth_score: Optional[float] = Query(None, ge=0, le=100),
     max_risk_score: Optional[float] = Query(None, ge=0, le=100),
@@ -184,8 +189,14 @@ def list_areas(
 
 
 @router.get("/{area_id}/report")
-def get_area_report(area_id: int, db: Session = Depends(get_db)):
-    """Full explainable report for a single area."""
+@limiter.limit("30/minute")
+def get_area_report(
+    request: Request,
+    area_id: int,
+    format: Optional[str] = Query(None, description="Response format: json (default), pdf, html"),
+    db: Session = Depends(get_db),
+):
+    """Full explainable report for a single area. Add ?format=pdf for PDF download."""
     area = db.query(Area).filter(Area.id == area_id).first()
     if not area:
         raise HTTPException(status_code=404, detail="Area not found")
@@ -250,7 +261,7 @@ def get_area_report(area_id: int, db: Session = Depends(get_db)):
 
     cagr = _compute_cagr(history)
 
-    return {
+    report_data = {
         "area": _area_summary(area, prediction, history),
         "price_history": [
             {"date": h.date.strftime("%Y-%m-%d"), "price_sqft": h.price_sqft}
@@ -272,3 +283,16 @@ def get_area_report(area_id: int, db: Session = Depends(get_db)):
         ],
         "ai_summary": _generate_summary(area.name, prediction, gs, rs, cagr),
     }
+
+    if format in ("pdf", "html"):
+        from app.pdf_report import render_report, is_pdf_available
+        content, media_type = render_report(report_data)
+        ext = "pdf" if (format == "pdf" and is_pdf_available()) else "html"
+        filename = f"landsignal-{area.name.lower().replace(' ', '-')}-{datetime.utcnow().strftime('%Y%m%d')}.{ext}"
+        return Response(
+            content=content,
+            media_type=media_type,
+            headers={"Content-Disposition": f'attachment; filename="{filename}"'},
+        )
+
+    return report_data
